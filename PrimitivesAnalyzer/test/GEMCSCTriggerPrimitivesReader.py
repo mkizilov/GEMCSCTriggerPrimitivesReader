@@ -52,7 +52,7 @@ process.source.fileNames.append("file:lcts2.root")
 process.options = cms.untracked.PSet(
                         SkipEvent = cms.untracked.vstring('ProductNotFound')
                         )
-outfile = "out_LCT_test.root"
+outfile = "out_GEMCSCTriggerPrimitivesReader.root"
 process.TFileService = cms.Service("TFileService", fileName = cms.string(outfile))
 
 process.GEMCSCTriggerPrimitivesReader = cms.EDAnalyzer('GEMCSCTriggerPrimitivesReader', 
