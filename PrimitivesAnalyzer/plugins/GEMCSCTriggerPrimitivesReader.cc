@@ -90,27 +90,30 @@ private:
   TTree* CLCT_tree;
   TTree* LCT_tree;
   TTree* t;
-  bool t_is_data;
-  bool t_is_emul;
-  int t_endcap;
-  int t_station;
-  int t_ring;
-  int t_chamber;
+
   int t_RUN;
   int t_Event;
   int t_eventsAnalyzed;
-  bool t_isValid;
-  int t_quality;
-  int t_keyWG;
-  int t_strip;
-  int t_quadStrip;
-  int t_eightStrip;
-  int t_stripType;
-  int t_bend;
-  int t_slope;
-  int t_bx;
-  int t_pattern;
-  int t_run3pattern;
+
+  std::vector<bool> t_is_data;
+  std::vector<bool> t_is_emul;
+  std::vector<int> t_endcap;
+  std::vector<int> t_station;
+  std::vector<int> t_ring;
+  std::vector<int> t_chamber;
+
+  std::vector<bool> t_isValid;
+  std::vector<int> t_quality;
+  std::vector<int> t_keyWG;
+  std::vector<int> t_strip;
+  std::vector<int> t_quadStrip;
+  std::vector<int> t_eightStrip;
+  std::vector<int> t_stripType;
+  std::vector<int> t_bend;
+  std::vector<int> t_slope;
+  std::vector<int> t_bx;
+  std::vector<int> t_pattern;
+  std::vector<int> t_run3pattern;
 
 
     
@@ -152,21 +155,13 @@ GEMCSCTriggerPrimitivesReader::GEMCSCTriggerPrimitivesReader(const edm::Paramete
     clcts_e_token_ = consumes<CSCCLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
     lcts_tmb_e_token_ = consumes<CSCCorrelatedLCTDigiCollection>(edm::InputTag(lctProducerEmul_));
 
-    // //TTree varialbes
-    // RUN_ = 0;
-    // Event_ = 0;
-    // t_is_data = false;
-    // t_is_emul = false;
-    // t_endcap = 0;
-    // t_station = 0;
-    // t_ring = 0;
-    // t_chamber = 0;
     //book TTree
     ALCT_tree = bookTTree_ALCT();
     CLCT_tree = bookTTree_CLCT();
     LCT_tree = bookTTree_LCT();
 
   }
+
 
 void
 GEMCSCTriggerPrimitivesReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -180,6 +175,7 @@ GEMCSCTriggerPrimitivesReader::analyze(const edm::Event& iEvent, const edm::Even
     edm::Handle<CSCALCTDigiCollection> alcts_data;
     edm::Handle<CSCCLCTDigiCollection> clcts_data;
     edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_tmb_data;
+
     iEvent.getByToken(alcts_d_token_, alcts_data);
     iEvent.getByToken(clcts_d_token_, clcts_data);
     iEvent.getByToken(lcts_tmb_d_token_, lcts_tmb_data);
@@ -243,6 +239,9 @@ GEMCSCTriggerPrimitivesReader::analyze(const edm::Event& iEvent, const edm::Even
 
 void GEMCSCTriggerPrimitivesReader::SaveALCTs(const CSCALCTDigiCollection* alcts, bool is_data, bool is_emul)
 {
+  t_RUN = RUN_;
+  t_Event = Event_;
+  t_eventsAnalyzed = eventsAnalyzed;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
       for (int ring = 1; ring <= 4; ring++) {
@@ -256,26 +255,33 @@ void GEMCSCTriggerPrimitivesReader::SaveALCTs(const CSCALCTDigiCollection* alcts
               std::cout << "ALCT "  <<(*digiIt) << " data:emul "<< is_data <<":"<< is_emul << std::endl;
               alctV.push_back(*digiIt);
               //Fill TTree
-              t_RUN = RUN_;
-              t_Event = Event_;
-              t_eventsAnalyzed = eventsAnalyzed;
-              t_is_data = is_data;
-              t_is_emul = is_emul;
-              t_endcap = endc;
-              t_station = stat;
-              t_ring = ring;
-              t_chamber = cham;
-              ALCT_tree->Fill();
+              t_is_data.push_back(is_data);
+              t_is_emul.push_back(is_emul);
+              t_endcap.push_back(endc);
+              t_station.push_back(stat);
+              t_ring.push_back(ring);
+              t_chamber.push_back(cham);
             }
           }
         }
       }
     }
   }
+  ALCT_tree->Fill();
+  // Clear vectors
+  t_is_data.clear();
+  t_is_emul.clear();
+  t_endcap.clear();
+  t_station.clear();
+  t_ring.clear();
+  t_chamber.clear();
 }
 
 void GEMCSCTriggerPrimitivesReader::SaveCLCTs(const CSCCLCTDigiCollection* clcts, bool is_data, bool is_emul)
 {
+  t_RUN = RUN_;
+  t_Event = Event_;
+  t_eventsAnalyzed = eventsAnalyzed;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
       for (int ring = 1; ring <= 4; ring++) {
@@ -289,27 +295,33 @@ void GEMCSCTriggerPrimitivesReader::SaveCLCTs(const CSCCLCTDigiCollection* clcts
               if (debug) std::cout << "CLCT " << (*digiIt) <<" data:emul "<< is_data <<":"<< is_emul << std::endl;
               clctV.push_back(*digiIt);
               //Fill TTree
-              t_RUN = RUN_;
-              t_Event = Event_;
-              t_eventsAnalyzed = eventsAnalyzed;
-              t_is_data = is_data;
-              t_is_emul = is_emul;
-              t_endcap = endc;
-              t_station = stat;
-              t_ring = ring;
-              t_chamber = cham;
-
-              CLCT_tree->Fill();
+              t_is_data.push_back(is_data);
+              t_is_emul.push_back(is_emul);
+              t_endcap.push_back(endc);
+              t_station.push_back(stat);
+              t_ring.push_back(ring);
+              t_chamber.push_back(cham);             
             }
           }
         }
       }
     }
   }
+  CLCT_tree->Fill();
+  // Clear vectors
+  t_is_data.clear();
+  t_is_emul.clear();
+  t_endcap.clear();
+  t_station.clear();
+  t_ring.clear();
+  t_chamber.clear();
 }
 
 void GEMCSCTriggerPrimitivesReader::SaveLCTs(const CSCCorrelatedLCTDigiCollection* lcts, bool is_data, bool is_emul)
 {
+  t_RUN = RUN_;
+  t_Event = Event_;
+  t_eventsAnalyzed = eventsAnalyzed;
   for (int endc = 1; endc <= 2; endc++) {
     for (int stat = 1; stat <= 4; stat++) {
       for (int ring = 1; ring <= 4; ring++) {
@@ -323,36 +335,51 @@ void GEMCSCTriggerPrimitivesReader::SaveLCTs(const CSCCorrelatedLCTDigiCollectio
               if (debug) std::cout << "LCT " << (*digiIt) <<" data:emul "<< is_data <<":"<< is_emul << std::endl;
               lctV.push_back(*digiIt);
               //Fill TTree
-              t_RUN = RUN_;
-              t_Event = Event_;
-              t_eventsAnalyzed = eventsAnalyzed;
-              t_is_data = is_data;
-              t_is_emul = is_emul;
-              t_endcap = endc;
-              t_station = stat;
-              t_ring = ring;
-              t_chamber = cham;
-              t_isValid = (*digiIt).isValid();
-              t_quality = (*digiIt).getQuality();
-              t_keyWG = (*digiIt).getKeyWG();
-              t_strip = (*digiIt).getStrip();
-              t_quadStrip = (*digiIt).getStrip(4);
-              t_eightStrip = (*digiIt).getStrip(8);
-              t_stripType = (*digiIt).getStripType();
-              t_bend = (*digiIt).getBend();
-              t_slope = (*digiIt).getSlope();
-              t_bx = (*digiIt).getBX();
-              t_pattern = (*digiIt).getPattern();
-              t_run3pattern = (*digiIt).getRun3Pattern();
-
-
-              LCT_tree->Fill();
+              t_is_data.push_back(is_data);
+              t_is_emul.push_back(is_emul);
+              t_endcap.push_back(endc);
+              t_station.push_back(stat);
+              t_ring.push_back(ring);
+              t_chamber.push_back(cham);
+              t_isValid.push_back((*digiIt).isValid());
+              t_quality.push_back((*digiIt).getQuality());
+              t_keyWG.push_back((*digiIt).getKeyWG());
+              t_strip.push_back((*digiIt).getStrip());
+              t_quadStrip.push_back((*digiIt).getStrip(4));
+              t_eightStrip.push_back((*digiIt).getStrip(8));
+              t_stripType.push_back((*digiIt).getStripType());
+              t_bend.push_back((*digiIt).getBend());
+              t_slope.push_back((*digiIt).getSlope());
+              t_bx.push_back((*digiIt).getBX());
+              t_pattern.push_back((*digiIt).getPattern());
+              t_run3pattern.push_back((*digiIt).getRun3Pattern());
+              
             }
           }
         }
       }
     }
   }
+  LCT_tree->Fill();
+  // Clear vectors
+  t_is_data.clear();
+  t_is_emul.clear();
+  t_endcap.clear();
+  t_station.clear();
+  t_ring.clear();
+  t_chamber.clear();
+  t_isValid.clear();
+  t_quality.clear();
+  t_keyWG.clear();
+  t_strip.clear();
+  t_quadStrip.clear();
+  t_eightStrip.clear();
+  t_stripType.clear();
+  t_bend.clear();
+  t_slope.clear();
+  t_bx.clear();
+  t_pattern.clear();
+  t_run3pattern.clear();
 }
 
 TTree* GEMCSCTriggerPrimitivesReader::bookTTree_ALCT() {
@@ -361,12 +388,12 @@ TTree* GEMCSCTriggerPrimitivesReader::bookTTree_ALCT() {
   t->Branch("RUN", &t_RUN, "RUN/I");
   t->Branch("Event", &t_Event, "Event/I");
   t->Branch("eventsAnalyzed", &t_eventsAnalyzed, "eventsAnalyzed/I");
-  t->Branch("is_data", &t_is_data, "is_data/O");
-  t->Branch("is_emul", &t_is_emul, "is_emul/O");
-  t->Branch("endcap", &t_endcap, "endcap/I");
-  t->Branch("station", &t_station, "station/I");
-  t->Branch("ring", &t_ring, "ring/I");
-  t->Branch("chamber", &t_chamber, "chamber/I");
+  t->Branch("is_data", "std::vector<bool>", &t_is_data);
+  t->Branch("is_emul", "std::vector<bool>", &t_is_emul);
+  t->Branch("endcap", "std::vector<int>", &t_endcap);
+  t->Branch("station", "std::vector<int>", &t_station);
+  t->Branch("ring", "std::vector<int>", &t_ring);
+  t->Branch("chamber", "std::vector<int>", &t_chamber);
   return t;
 }
 TTree* GEMCSCTriggerPrimitivesReader::bookTTree_CLCT(){
@@ -375,12 +402,13 @@ TTree* GEMCSCTriggerPrimitivesReader::bookTTree_CLCT(){
   t->Branch("RUN", &t_RUN, "RUN/I");
   t->Branch("Event", &t_Event, "Event/I");
   t->Branch("eventsAnalyzed", &t_eventsAnalyzed, "eventsAnalyzed/I");
-  t->Branch("is_data", &t_is_data, "is_data/O");
-  t->Branch("is_emul", &t_is_emul, "is_emul/O");
-  t->Branch("endcap", &t_endcap, "endcap/I");
-  t->Branch("station", &t_station, "station/I");
-  t->Branch("ring", &t_ring, "ring/I");
-  t->Branch("chamber", &t_chamber, "chamber/I");
+  t->Branch("is_data", "std::vector<bool>", &t_is_data);
+  t->Branch("is_emul", "std::vector<bool>", &t_is_emul);
+  t->Branch("endcap", "std::vector<int>", &t_endcap);
+  t->Branch("station", "std::vector<int>", &t_station);
+  t->Branch("ring", "std::vector<int>", &t_ring);
+  t->Branch("chamber", "std::vector<int>", &t_chamber);
+
   return t;
 
 }
@@ -390,24 +418,25 @@ TTree* GEMCSCTriggerPrimitivesReader::bookTTree_LCT(){
   t->Branch("RUN", &t_RUN, "RUN/I");
   t->Branch("Event", &t_Event, "Event/I");
   t->Branch("eventsAnalyzed", &t_eventsAnalyzed, "eventsAnalyzed/I");
-  t->Branch("is_data", &t_is_data, "is_data/O");
-  t->Branch("is_emul", &t_is_emul, "is_emul/O");
-  t->Branch("endcap", &t_endcap, "endcap/I");
-  t->Branch("station", &t_station, "station/I");
-  t->Branch("ring", &t_ring, "ring/I");
-  t->Branch("chamber", &t_chamber, "chamber/I");
+  t->Branch("is_data", "std::vector<bool>", &t_is_data);
+  t->Branch("is_emul", "std::vector<bool>", &t_is_emul);
+  t->Branch("endcap", "std::vector<int>", &t_endcap);
+  t->Branch("station", "std::vector<int>", &t_station);
+  t->Branch("ring", "std::vector<int>", &t_ring);
+  t->Branch("chamber", "std::vector<int>", &t_chamber);
   t->Branch("isValid", &t_isValid, "isValid/O");
-  t->Branch("quality", &t_quality, "quality/I");
-  t->Branch("keyWG", &t_keyWG, "keyWG/I");
-  t->Branch("strip", &t_strip, "strip/I");
-  t->Branch("quadStrip", &t_quadStrip, "quadStrip/I");
-  t->Branch("eightStrip", &t_eightStrip, "eightStrip/I");
-  t->Branch("stripType", &t_stripType, "stripType/I");
-  t->Branch("bend", &t_bend, "bend/I");
-  t->Branch("slope", &t_slope, "slope/I");
-  t->Branch("bx", &t_bx, "bx/I");
-  t->Branch("pattern", &t_pattern, "pattern/I");
-  t->Branch("run3pattern", &t_run3pattern, "run3pattern/I");
+  t->Branch("isValid", "std::vector<bool>", &t_isValid);
+  t->Branch("quality", "std::vector<int>", &t_quality);
+  t->Branch("keyWG", "std::vector<int>", &t_keyWG);
+  t->Branch("strip", "std::vector<int>", &t_strip);
+  t->Branch("quadStrip", "std::vector<int>", &t_quadStrip);
+  t->Branch("eightStrip", "std::vector<int>", &t_eightStrip);
+  t->Branch("stripType", "std::vector<int>", &t_stripType);
+  t->Branch("bend", "std::vector<int>", &t_bend);
+  t->Branch("slope", "std::vector<int>", &t_slope);
+  t->Branch("bx", "std::vector<int>", &t_bx);
+  t->Branch("pattern", "std::vector<int>", &t_pattern);
+  t->Branch("run3pattern", "std::vector<int>", &t_run3pattern);
   return t;
 }
 
