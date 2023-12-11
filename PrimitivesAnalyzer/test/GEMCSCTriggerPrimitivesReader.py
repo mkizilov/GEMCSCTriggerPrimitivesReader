@@ -46,8 +46,19 @@ process.source = cms.Source("PoolSource",
 			# )
 				)
 
+import glob
+#path_with_wildcard = "file:/eos/user/m/mkizilov/crab3_out/Trigger/2023-12-06_FullZMu_v2/Muon1/2023-12-06_FullZMu_v2/231206_233929/0000/*.root"
+# Use glob to expand the wildcard and create a list of file names
+#file_names = glob.glob(path_with_wildcard)
 
-process.source.fileNames.append("file:lcts2.root")
+# Add the list of file names to the configuration
+#process.source.fileNames = cms.untracked.vstring(file_names)
+#process.source.fileNames.append("file:/eos/user/m/mkizilov/crab3_out/Trigger/2023-12-06_FullZMu_v2/Muon1/2023-12-06_FullZMu_v2/231206_233929/0000/*.root")
+import os
+for filename in os.listdir("/eos/user/m/mkizilov/crab3_out/Trigger/2023-12-06_FullZMu_v2/Muon1/2023-12-06_FullZMu_v2/231206_233929/0000"):
+		if filename.endswith(".root"):
+			process.source.fileNames.append("file:/eos/user/m/mkizilov/crab3_out/Trigger/2023-12-06_FullZMu_v2/Muon1/2023-12-06_FullZMu_v2/231206_233929/0000/" + filename)
+
 
 process.options = cms.untracked.PSet(
                         SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -59,7 +70,7 @@ process.GEMCSCTriggerPrimitivesReader = cms.EDAnalyzer('GEMCSCTriggerPrimitivesR
 	process.MuonServiceProxy,
 	CSCLCTProducerData = cms.untracked.string("muonCSCDigis"),
 	CSCLCTProducerEmul = cms.untracked.string("cscTriggerPrimitiveDigis"),
-    debug = cms.bool(True),
+    debug = cms.bool(False),
 )
 
 process.p = cms.Path(process.GEMCSCTriggerPrimitivesReader)
